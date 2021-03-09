@@ -1,6 +1,6 @@
 CC = gcc
 LD = gcc
-CFLAGS=-Wall -g 
+CFLAGS=-Wall -g -O0
 INCLUDES=-I/opt/X11/include
 LDFLAGS=-L/opt/X11/lib -lX11 -lm -pthread
 OBJS = main.o gol.o ./graphics/graphics.o

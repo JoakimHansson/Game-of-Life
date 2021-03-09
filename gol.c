@@ -11,6 +11,7 @@ int *changed_y_next = NULL;
 
 
 int global_count = 0;
+int change_count = 0;
 int generation_count = 0;
 int **gt = NULL; // generation_tracker
 
@@ -160,46 +161,56 @@ int shift_generation_first(grid_t *g, int N){
   return change_count;
 }
 
+static inline void shift_cell(grid_t *g, int x, int y){
+  int live_count,N;
+  N = ng->size;
+  if(gt[y+1][x+1] == generation_count || x < 0 || x >= N || y < 0 || y >= N)
+    return;
+  //checked[(x+1)*(y+1)] = 1;
+  gt[y+1][x+1] = generation_count;
+  // If cell is live
+  if (g->cells[y][x] == 1) {
+    live_count = live_neighbours(g, x, y, N);
+    if (live_count != 2 && live_count != 3) {
+      ng->cells[y][x] = 0;
+      changed_x_next[change_count] = x;
+      changed_y_next[change_count++] = y;
+    }
+    
+  }
+  
+  // If cell is dead
+  else if (g->cells[y][x] == 0) {
+    live_count = live_neighbours(g, x, y, N);
+    if (live_count == 3) {
+      ng->cells[y][x] = 1;
+      changed_x_next[change_count] = x;
+      changed_y_next[change_count++] = y;
+    }
+  } 
+  //printf("%d\n", change_count);
+}
+
 int shift_generation(grid_t *g, int N){
 
   if(global_count == 0)
     return shift_generation_first(g, N);
   
-  int live_count, x, y;
-  int change_count = 0;
   for (int i = 0; i < global_count; i++){
-      for (int k = -1; k < 2; k++) {
-        for (int m = -1; m < 2; m++) {
-          x = m + changed_x[i];
-          y = k + changed_y[i];
-	  if(gt[y+1][x+1] == generation_count || x < 0 || x >= N || y < 0 || y >= N)
-	    continue;
-	  //checked[(x+1)*(y+1)] = 1;
-	  gt[y+1][x+1] = generation_count;
-          // If cell is live
-          if (g->cells[y][x] == 1) {
-            live_count = live_neighbours(g, x, y, N);
-            if (live_count != 2 && live_count != 3) {
-              ng->cells[y][x] = 0;
-              changed_x_next[change_count] = x;
-              changed_y_next[change_count++] = y;
-            }
+    shift_cell(g,changed_x[i]-1,changed_y[i]-1);
+    shift_cell(g,changed_x[i]-1,changed_y[i]);
+    shift_cell(g,changed_x[i]-1,changed_y[i]+1);
+    
+    shift_cell(g,changed_x[i],changed_y[i]-1);
+    shift_cell(g,changed_x[i],changed_y[i]);
+    shift_cell(g,changed_x[i],changed_y[i]+1);
 
-          }
-
-          // If cell is dead
-          else if (g->cells[y][x] == 0) {
-            live_count = live_neighbours(g, x, y, N);
-            if (live_count == 3) {
-              ng->cells[y][x] = 1;
-              changed_x_next[change_count] = x;
-              changed_y_next[change_count++] = y;
-            }
-          }
-        }
-    }
+    shift_cell(g,changed_x[i]+1,changed_y[i]-1);
+    shift_cell(g,changed_x[i]+1,changed_y[i]);
+    shift_cell(g,changed_x[i]+1,changed_y[i]+1);
   }
   int c = 0;
+  int x, y;
   while (c < change_count) {
     x = changed_x_next[c];
     y = changed_y_next[c];
@@ -209,8 +220,9 @@ int shift_generation(grid_t *g, int N){
     c++;
   }
   global_count = change_count;
+  change_count = 0;
   generation_count++;
-  return change_count;
+  return global_count;
 }
 
 void print_grid(grid_t *g){
