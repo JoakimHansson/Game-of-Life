@@ -7,6 +7,8 @@
 // Each cell is represented by a boolean. The cell is alive if the boolean is True, otherwise False.
 typedef struct grid{
   int size;
+  int start_index;
+  int end_index;
   int live;
   char **cells;
 }grid_t;
@@ -21,9 +23,8 @@ grid_t* create_grid(int N);
 /** @brief Free all memory used by g.
 *
 *  @param g grid to be removed.
-*  @param N number of rows and number of cells in each row.
 */
-void delete_grid(grid_t *g, int N);
+void delete_grid(grid_t *g);
 
 /** @brief Set the cells in g to alive or dead, depending on if a random generated value is larger than r.
 *
@@ -39,17 +40,16 @@ void init_grid(grid_t *g, int r);
 *  @param y The y coordinate.
 *  @return Number of live neighbours
 */
-int live_neighbours(grid_t *g, int x, int y, int N);
+int live_neighbours(grid_t *g, int x, int y);
 
 /** @brief count all dead cells in the neighbourhood.
 *
 *  @param g The grid holding the cells.
 *  @param x The x coordinate.
 *  @param y The y coordinate.
-*  @param N The N max number of cells in a row or collumn in g.
 *  @return Number of live neighbours
 */
-int dead_neighbours(grid_t *g, int x, int y, int N);
+int dead_neighbours(grid_t *g, int x, int y);
 
 /** @brief Updates all cells in g to a new generation.
 *
@@ -58,10 +58,9 @@ int dead_neighbours(grid_t *g, int x, int y, int N);
 *  3. All other live cells die in the next generation. Similarly, all other dead cells stay dead.
 *
 *  @param g The grid holding the current generation.
-*  @param N The N max number of cells in a row or collumn in g.
 *  @return Number of cells that changed in this generation shift.
 */
-int shift_generation(grid_t *g, int N);
+int shift_generation(grid_t *g);
 
 /** @brief Print g to stdout.
 *

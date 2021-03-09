@@ -9,7 +9,7 @@ int windowSize = 1000;
 float rectangleSide;// = 0.01;
 
 
-int write_cell_to_file(int n, grid_t *g, const char *fileName) {
+int write_cell_to_file(grid_t *g, const char *fileName) {
 
   // Remove existing outputfile.
   remove(fileName);
@@ -21,8 +21,8 @@ int write_cell_to_file(int n, grid_t *g, const char *fileName) {
     return -1;
   }
 
-  for(int i=0; i<n; i++){
-    for(int j=0; j<n; j++){
+  for(int i=g->start_index; i<g->end_index; i++){
+    for(int j=0; j<g->size; j++){
       fwrite(&g->cells[i][j], sizeof(char), 1, output_file);
     }
   }
@@ -31,7 +31,8 @@ int write_cell_to_file(int n, grid_t *g, const char *fileName) {
   return 0;
 }
 
-int read_cells_from_file(int n, grid_t *g, const char* fileName) {
+int read_cells_from_file(grid_t *g, const char* fileName) {
+  int n = g->size;
   /* Open input file and determine its size. */
   FILE* input_file = fopen(fileName, "rb");
   if(!input_file) {
@@ -50,10 +51,10 @@ int read_cells_from_file(int n, grid_t *g, const char* fileName) {
     return -1;
   }
 
-  for(int i=0; i<n; i++){
-    for(int j=0; j<n; j++){
+  for(int i=g->start_index; i<g->end_index; i++){
+    for(int j=g->start_index; j<g->end_index; j++){
     /* Read contents of input_file into buffer. */
-      fread(&(g->cells[i][j]), sizeof(char), 1, input_file);
+      fread(&(g->cells[i+1][j+1]), sizeof(char), 1, input_file);
     }
   }
   
@@ -102,14 +103,14 @@ int main(int argc, char** argv){
   grid_t *grid = create_grid(N);
   //  init_grid(grid, 10);
 
-  read_cells_from_file(N, grid, argv[1]);
+  read_cells_from_file(grid, argv[1]);
   
   int current_tick = 0;
 
   while (current_tick++ < tick_max) {
 
     //start = clock();
-    if(shift_generation(grid, N) == 0){
+    if(shift_generation(grid) == 0){
       break;
     }
     //end = clock();
@@ -140,10 +141,9 @@ int main(int argc, char** argv){
     CloseDisplay();
   }
 
-  write_cell_to_file(N, grid, "result.gen");
+  write_cell_to_file(grid, "result.gen");
 
-  delete_grid(grid, N);
-  //  delete_grid(grid_next, N);
+  delete_grid(grid);
 
   return 0;
 }
