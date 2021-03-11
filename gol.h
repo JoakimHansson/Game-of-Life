@@ -40,7 +40,7 @@ void init_grid(grid_t *g, int r);
 *  @param y The y coordinate.
 *  @return Number of live neighbours
 */
-int live_neighbours(grid_t *g, int x, int y);
+//static inline int live_neighbours(grid_t *g, int x, int y);
 
 /** @brief count all dead cells in the neighbourhood.
 *
@@ -61,6 +61,7 @@ int dead_neighbours(grid_t *g, int x, int y);
 *  @return Number of cells that changed in this generation shift.
 */
 int shift_generation(grid_t *g);
+int shift_generation_first(grid_t *g);
 
 /** @brief Print g to stdout.
 *

@@ -77,7 +77,7 @@ int main(int argc, char** argv){
   clock_t start, end;
   double time_used;
 
-  if(argc != 6){
+  if(argc != 6 && argc != 7){
     printf("Usage: ./gol inputfile N birth tick_time tick_steps graphics\n");
     exit(0);
   }
@@ -141,6 +141,8 @@ int main(int argc, char** argv){
     CloseDisplay();
   }
 
+  //   print_grid(grid);
+  
   write_cell_to_file(grid, "result.gen");
 
   delete_grid(grid);

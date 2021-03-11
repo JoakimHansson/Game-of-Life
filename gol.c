@@ -84,35 +84,21 @@ void init_grid(grid_t* g, int birth){
   }
 }
 
-int live_neighbours(grid_t *g, int x, int y){
-  int dx, dy;
+static inline int live_neighbours(grid_t *g, int x, int y){
   int count = 0;
-
-  for(int i=-1; i<2; i++){
-    for(int j=-1; j<2; j++){
-      dx = i + x;
-      dy = j + y;
-      if(dx == x && dy == y)
-	continue;
-      count += g->cells[dy][dx];
-    }
-  }
+  count += g->cells[y-1][x-1];
+  count += g->cells[y-1][x];
+  count += g->cells[y-1][x+1];
+  count += g->cells[y][x-1];
+  count += g->cells[y][x+1];
+  count += g->cells[y+1][x-1];
+  count += g->cells[y+1][x];
+  count += g->cells[y+1][x+1];
   return count;
 }
 
 int dead_neighbours(grid_t *g, int x, int y){
-  int dx, dy;
-  int count = 0;
-
-  for(int i=-1; i<2; i++){
-    for(int j=-1; j<2; j++){
-      dx = i + x;
-      dy = j + y;
-      count += (1 - g->cells[dy][dx]);
-    }
-  }
-
-  return count;
+  return 8 - live_neighbours(g, x, y);
 }
 
 int shift_generation_first(grid_t *g){
@@ -167,7 +153,7 @@ static inline void shift_cell(grid_t *g, int x, int y){
   // If cell is live
   if (g->cells[y][x] == 1) {
     live_count = live_neighbours(g, x, y);
-    if (live_count != 2 && live_count != 3) {
+    if (live_count < 2 || live_count > 3) {
       ng->cells[y][x] = 0;
       changed_x_next[change_count] = x;
       changed_y_next[change_count++] = y;
