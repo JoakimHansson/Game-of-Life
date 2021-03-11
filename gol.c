@@ -146,10 +146,10 @@ int shift_generation_first(grid_t *g){
 static inline void shift_cell(grid_t *g, int x, int y){
   int live_count,N;
   N = ng->size;
-  if(gt[y+1][x+1] == generation_count || x < g->start_index || x >= g->end_index || y < g->start_index || y >= g->end_index)
+  gt[y+1][x+1] = generation_count;
+  if(x < g->start_index || x >= g->end_index || y < g->start_index || y >= g->end_index)
      return; 
 
-  gt[y+1][x+1] = generation_count;
   // If cell is live
   if (g->cells[y][x] == 1) {
     live_count = live_neighbours(g, x, y);
@@ -177,22 +177,32 @@ int shift_generation(grid_t *g){
 
   if(global_count == 0)
     return shift_generation_first(g);
-  
+  int x, y;
   for (int i = 0; i < global_count; i++){
-    shift_cell(g,changed_x[i]-1,changed_y[i]-1);
-    shift_cell(g,changed_x[i]-1,changed_y[i]);
-    shift_cell(g,changed_x[i]-1,changed_y[i]+1);
+    x = changed_x[i];
+    y = changed_y[i];
+    if(gt[y+1-1][x+1-1] != generation_count) 
+      shift_cell(g,changed_x[i]-1,changed_y[i]-1);
+    if(gt[y+1][x+1-1] != generation_count) 
+      shift_cell(g,changed_x[i]-1,changed_y[i]);
+    if(gt[y+1+1][x+1-1] != generation_count) 
+      shift_cell(g,changed_x[i]-1,changed_y[i]+1);
     
-    shift_cell(g,changed_x[i],changed_y[i]-1);
-    shift_cell(g,changed_x[i],changed_y[i]);
-    shift_cell(g,changed_x[i],changed_y[i]+1);
+    if(gt[y+1-1][x+1] != generation_count) 
+      shift_cell(g,changed_x[i],changed_y[i]-1);
+    if(gt[y+1][x+1] != generation_count) 
+      shift_cell(g,changed_x[i],changed_y[i]);
+    if(gt[y+1+1][x+1] != generation_count) 
+      shift_cell(g,changed_x[i],changed_y[i]+1);
 
-    shift_cell(g,changed_x[i]+1,changed_y[i]-1);
-    shift_cell(g,changed_x[i]+1,changed_y[i]);
-    shift_cell(g,changed_x[i]+1,changed_y[i]+1);
+    if(gt[y+1-1][x+1+1] != generation_count) 
+      shift_cell(g,changed_x[i]+1,changed_y[i]-1);
+    if(gt[y+1][x+1+1] != generation_count) 
+      shift_cell(g,changed_x[i]+1,changed_y[i]);
+    if(gt[y+1+1][x+1+1] != generation_count) 
+      shift_cell(g,changed_x[i]+1,changed_y[i]+1);
   }
   int c = 0;
-  int x, y;
   while (c < change_count) {
     x = changed_x_next[c];
     y = changed_y_next[c];
