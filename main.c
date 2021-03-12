@@ -72,13 +72,12 @@ int read_cells_from_file(grid_t *g, const char* fileName) {
 
 int main(int argc, char** argv){
 
-  int N, graphics, tick_max;
+  int N, graphics, tick_max, nr_threads;
   float tick_time;
   clock_t start, end;
   double time_used;
-
-  if(argc != 6 && argc != 7){
-    printf("Usage: ./gol inputfile N birth tick_time tick_steps graphics\n");
+  if(argc < 6 || argc > 8){
+    printf("Usage: ./gol inputfile N birth tick_time tick_steps graphics nr_threads\n");
     exit(0);
   }
   
@@ -87,6 +86,10 @@ int main(int argc, char** argv){
   tick_time = atof(argv[3]) * 1000000;
   tick_max = atoi(argv[4]);
   graphics = atoi(argv[5]);
+  if(argc == 7)
+    nr_threads = atoi(argv[6]);
+  else
+    nr_threads = 1;
   if(N % 2)
     exit(-1);
 
@@ -100,7 +103,7 @@ int main(int argc, char** argv){
     SetCAxes(0, 1);
   }
   
-  grid_t *grid = create_grid(N);
+  grid_t *grid = create_grid(N, nr_threads);
   //  init_grid(grid, 10);
 
   read_cells_from_file(grid, argv[1]);
@@ -141,7 +144,8 @@ int main(int argc, char** argv){
     CloseDisplay();
   }
 
-  //   print_grid(grid);
+  if(argc == 8)
+    print_grid(grid);
   
   write_cell_to_file(grid, "result.gen");
 

@@ -10,15 +10,17 @@ typedef struct grid{
   int start_index;
   int end_index;
   int live;
+  int nr_threads;
   char **cells;
 }grid_t;
 
 /** @brief Allocates memory for a NxN grid. All cells is set to 0.
 *
-*  @param N number of rows and number of cells in each row.
+*  @param N The number of rows and number of cells in each row.
+*  @param nr_threads The number of available threads.
 *  @return Pointer to the grid.
 */
-grid_t* create_grid(int N);
+grid_t* create_grid(int N, int nr_threads);
 
 /** @brief Free all memory used by g.
 *
