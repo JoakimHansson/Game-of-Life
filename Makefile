@@ -1,16 +1,19 @@
 CC = gcc
 LD = gcc
-CFLAGS=-Wall -g -Ofast
+CFLAGS=-Wall -O3
 INCLUDES=-I/opt/X11/include
 LDFLAGS=-L/opt/X11/lib -lX11 -lm -pthread -fopt-info-vec-all -ftree-vectorizer-verbose=2
 OBJS = main.o gol.o ./graphics/graphics.o
 EXECUTABLE = gol
 T = 1
 TICK = 100
-FILE = input/random_N_02000.gen 
-N = 2000
+FILE = input/random_N_01000.gen 
+N = 1000
 
 all: $(EXECUTABLE)
+
+run: $(EXECUTABLE)
+	./gol $(FILE) $(N) 0 10000 1 $(T) 1;
 
 time: $(EXECUTABLE)
 	time ./gol input/random_N_00500.gen 500 0 100 0 $(T);
@@ -38,7 +41,7 @@ graphics.o: graphics.c ./graphics/graphics.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c ./graphics/graphics.c
 
 clean:
-	rm -f ./gol ./a.out *.o ./graphics/*.o *.gcda *.gcno vgcore.*
+	rm -f ./gol ./a.out *.o ./graphics/*.o *.gcda *.gcno vgcore.* gmon.out result.gen
 
 profile: run_profile
 	gprof -b -p ./a.out gmon.out;

@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-// Each cell is represented by a boolean. The cell is alive if the boolean is True, otherwise False.
+// Each cell is represented by a char. The cell is alive if the char is set to 1, otherwise False.
 typedef struct grid{
   int size;
   int start_index;
@@ -35,24 +35,6 @@ void delete_grid(grid_t *g);
 */
 void init_grid(grid_t *g, int r);
 
-/** @brief count all live cells in the neighbourhood.
-*
-*  @param g The grid holding the cells in.
-*  @param x The x coordinate.
-*  @param y The y coordinate.
-*  @return Number of live neighbours
-*/
-//static inline int live_neighbours(grid_t *g, int x, int y);
-
-/** @brief count all dead cells in the neighbourhood.
-*
-*  @param g The grid holding the cells.
-*  @param x The x coordinate.
-*  @param y The y coordinate.
-*  @return Number of live neighbours
-*/
-int dead_neighbours(grid_t *g, int x, int y);
-
 /** @brief Updates all cells in g to a new generation.
 *
 *  1. Any live cell with two or three live neighbours survives.
@@ -63,7 +45,6 @@ int dead_neighbours(grid_t *g, int x, int y);
 *  @return Number of cells that changed in this generation shift.
 */
 int shift_generation(grid_t *g);
-int shift_generation_first(grid_t *g);
 
 /** @brief Print g to stdout.
 *

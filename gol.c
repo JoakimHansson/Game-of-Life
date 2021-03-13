@@ -28,15 +28,16 @@ int *changed_y_next = NULL;
 int global_count = 0;
 int change_count = 0;
 int generation_count = 0;
-int **gt = NULL; // generation_tracker
+int **gt = NULL;
 
 int offset;
 int next_offset;
 
-grid_t *ng; // next generation
+grid_t *ng;
 
 data_t *d;
 
+// Initilize everything needed to run the simulation
 grid_t* create_grid(int N, int nr_threads){
   printf("N = %d\n", N);
   grid_t* g = (grid_t*) malloc(sizeof(grid_t));
@@ -80,6 +81,7 @@ grid_t* create_grid(int N, int nr_threads){
   return g;
 }
 
+// Deallocates all memory used in the simulation
 void delete_grid(grid_t *g){
   for(int i=0; i<g->size+2; i++){
     free(g->cells[i]);
@@ -99,6 +101,7 @@ void delete_grid(grid_t *g){
   free(changed_y_next);
 }
 
+// Randomly assign cells to live or dead, depenring on the value of r
 void init_grid(grid_t* g, int birth){
   srand(time(0));
   for(int i=g->start_index; i<g->end_index; i++){
@@ -115,6 +118,7 @@ void init_grid(grid_t* g, int birth){
   }
 }
 
+// count live neighbours
 static inline int live_neighbours(grid_t *g, int x, int y){
   int count = 0;
   
@@ -129,10 +133,12 @@ static inline int live_neighbours(grid_t *g, int x, int y){
   return count;
 }
 
+// count dead neighbours
 int dead_neighbours(grid_t *g, int x, int y){
   return 8 - live_neighbours(g, x, y);
 }
 
+// Iterates through all cells and add the ones that change durirung this generation to the changed_x and change_y list.
 int shift_generation_first(grid_t *g){
   int live_count;
   int change_count = 0;
@@ -174,10 +180,18 @@ int shift_generation_first(grid_t *g){
   return change_count;
 }
 
+// Generates a new state for the cell with coordinates x,y.
 static inline void shift_cell(grid_t *g, int x, int y){
   int live_count,N;
   N = ng->size;
-  gt[y+1][x+1] = generation_count;
+ if(gt[y+1][x+1] == generation_count)
+    return;
+ gt[y+1][x+1] += 1;
+ if(gt[y+1][x+1] > generation_count){
+   gt[y+1][x+1] = generation_count;
+   return;
+ }
+
   if(x < g->start_index || x >= g->end_index || y < g->start_index || y >= g->end_index)
      return; 
 
@@ -189,7 +203,6 @@ static inline void shift_cell(grid_t *g, int x, int y){
       changed_x_next[change_count] = x;
       changed_y_next[change_count++] = y;
     }
-    
   }
   
   // If cell is dead
@@ -203,11 +216,14 @@ static inline void shift_cell(grid_t *g, int x, int y){
   } 
 }
 
+// same as shift_cell, except that this function stores the new cell coordinates in the running threads change_lists., 
 static inline void shift_cell_threaded(grid_t *g, int x, int y, data_t *d){
+
+  if(gt[y+1][x+1] == generation_count)
+    return;
   gt[y+1][x+1] += 1;
   if(gt[y+1][x+1] > generation_count){
     gt[y+1][x+1] = generation_count;
-    // printf("failed\n");
     return;
   }
   int live_count,N;
@@ -216,7 +232,7 @@ static inline void shift_cell_threaded(grid_t *g, int x, int y, data_t *d){
      return; 
 
   // If cell is live
-  if (g->cells[y][x] == 1) {
+  if (g->cells[y][x]) {
     live_count = live_neighbours(g, x, y);
     if (live_count < 2 || live_count > 3) {
       ng->cells[y][x] = 0;
@@ -227,7 +243,7 @@ static inline void shift_cell_threaded(grid_t *g, int x, int y, data_t *d){
   }
   
   // If cell is dead
-  else if (g->cells[y][x] == 0) {
+  else if (!g->cells[y][x]) {
     live_count = live_neighbours(g, x, y);
     if (live_count == 3) {
       ng->cells[y][x] = 1;
@@ -235,9 +251,9 @@ static inline void shift_cell_threaded(grid_t *g, int x, int y, data_t *d){
       d->changed_y[d->count++] = y;
     }
   } 
-  //printf("%d\n", change_count);
 }
 
+// Is used as a staring function for a thread. Calls shift_cell_threaded for all cells asigned to this thread.
 void* shift_worker(void *data){
   
   pthread_detach(pthread_self());
@@ -248,38 +264,28 @@ void* shift_worker(void *data){
     index = i+offset;
     x = changed_x[index];
     y = changed_y[index];
-    if(gt[y+1-1][x+1-1] != generation_count) 
-      shift_cell_threaded(g,x-1,y-1, d);
-    if(gt[y+1][x+1-1] != generation_count) 
-      shift_cell_threaded(g,x-1,y, d);
-    if(gt[y+1+1][x+1-1] != generation_count) 
-      shift_cell_threaded(g,x-1,y+1, d);
-    
-    if(gt[y+1-1][x+1] != generation_count) 
-      shift_cell_threaded(g,x,y-1, d);
-    if(gt[y+1][x+1] != generation_count) 
-      shift_cell_threaded(g,x,y, d);
-    if(gt[y+1+1][x+1] != generation_count) 
-      shift_cell_threaded(g,x,y+1, d);
-
-    if(gt[y+1-1][x+1+1] != generation_count) 
-      shift_cell_threaded(g,x+1,y-1, d);
-    if(gt[y+1][x+1+1] != generation_count) 
-      shift_cell_threaded(g,x+1,y, d);
-    if(gt[y+1+1][x+1+1] != generation_count) 
-      shift_cell_threaded(g,x+1,y+1, d);
+    shift_cell_threaded(g,x-1,y-1, d);
+    shift_cell_threaded(g,x-1,y, d);
+    shift_cell_threaded(g,x-1,y+1, d);
+    shift_cell_threaded(g,x,y-1, d);
+    shift_cell_threaded(g,x,y, d);
+    shift_cell_threaded(g,x,y+1, d);
+    shift_cell_threaded(g,x+1,y-1, d);
+    shift_cell_threaded(g,x+1,y, d);
+    shift_cell_threaded(g,x+1,y+1, d);
   }
   d->done = 1;
   return NULL;
 }
 
+// Same as shift_generation, but this function devides the work between multiple threads.
 int shift_generation_threaded(grid_t *g){
   int nr_threads = g->nr_threads;
   int N = g->size;
   next_offset = (N*N)*(generation_count % 2);
   offset = (N*N) - next_offset;
   int workload = global_count/nr_threads;
-  pthread_t threads[nr_threads]; // threads
+  pthread_t threads[nr_threads];
   int start = 0;
   for(int i=0; i<nr_threads; i++){
     d[i].count = 0;
@@ -324,6 +330,7 @@ int shift_generation_threaded(grid_t *g){
   return global_count;
 }
 
+// Calculates the new state of all cells that where changed in the prevoius generation, and their neighbouring cells. Redirects the work to shift_generation_threads if more than 1 thread is is set in g->nr_threads.
 int shift_generation(grid_t *g){
 
   if(global_count == 0)
@@ -334,25 +341,16 @@ int shift_generation(grid_t *g){
   for (int i = 0; i < global_count; i++){
     x = changed_x[i];
     y = changed_y[i];
-    if(gt[y+1-1][x+1-1] != generation_count) 
       shift_cell(g,changed_x[i]-1,changed_y[i]-1);
-    if(gt[y+1][x+1-1] != generation_count) 
       shift_cell(g,changed_x[i]-1,changed_y[i]);
-    if(gt[y+1+1][x+1-1] != generation_count) 
       shift_cell(g,changed_x[i]-1,changed_y[i]+1);
     
-    if(gt[y+1-1][x+1] != generation_count) 
       shift_cell(g,changed_x[i],changed_y[i]-1);
-    if(gt[y+1][x+1] != generation_count) 
       shift_cell(g,changed_x[i],changed_y[i]);
-    if(gt[y+1+1][x+1] != generation_count) 
       shift_cell(g,changed_x[i],changed_y[i]+1);
 
-    if(gt[y+1-1][x+1+1] != generation_count) 
       shift_cell(g,changed_x[i]+1,changed_y[i]-1);
-    if(gt[y+1][x+1+1] != generation_count) 
       shift_cell(g,changed_x[i]+1,changed_y[i]);
-    if(gt[y+1+1][x+1+1] != generation_count) 
       shift_cell(g,changed_x[i]+1,changed_y[i]+1);
   }
   int c = 0;
@@ -370,6 +368,7 @@ int shift_generation(grid_t *g){
   return global_count;
 }
 
+// print the grid of cells.
 void print_grid(grid_t *g){
   printf("\n");
   for(int i=g->start_index; i<g->end_index; i++){

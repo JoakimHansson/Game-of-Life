@@ -74,15 +74,12 @@ int main(int argc, char** argv){
 
   int N, graphics, tick_max, nr_threads;
   float tick_time;
-  clock_t start, end;
-  double time_used;
   if(argc < 6 || argc > 8){
     printf("Usage: ./gol inputfile N birth tick_time tick_steps graphics nr_threads\n");
     exit(0);
   }
   
   N = atoi(argv[2]);
-  // birth = atoi(argv[3]);
   tick_time = atof(argv[3]) * 1000000;
   tick_max = atoi(argv[4]);
   graphics = atoi(argv[5]);
@@ -90,6 +87,7 @@ int main(int argc, char** argv){
     nr_threads = atoi(argv[6]);
   else
     nr_threads = 1;
+  
   if(N % 2)
     exit(-1);
 
@@ -104,25 +102,23 @@ int main(int argc, char** argv){
   }
   
   grid_t *grid = create_grid(N, nr_threads);
-  //  init_grid(grid, 10);
-
-  read_cells_from_file(grid, argv[1]);
-  
+  if(argc == 8 && atoi(argv[7]) == 1){
+    srand(0);
+    init_grid(grid, rand() % 10 + 1);
+  }
+  else
+    read_cells_from_file(grid, argv[1]);
+ 
   int current_tick = 0;
 
   while (current_tick++ < tick_max) {
 
-    //start = clock();
     if(shift_generation(grid) == 0){
       break;
     }
-    //end = clock();
-    //time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-    // printf("Time used in shift_generation() = %f\n", time_used);
 
     if (graphics) {
       ClearScreen();
-      start = clock();
       for (int y = 0; y < N; y++) {
         for (int x = 0; x < N; x++) {
           if (grid->cells[y][x] == 1) {
@@ -132,9 +128,6 @@ int main(int argc, char** argv){
         }
       }
       Refresh();
-      //end = clock();
-      //time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
-      //printf("Time used redering generation: %f\n", time_used);
       usleep(tick_time);
     }
   }
@@ -144,7 +137,7 @@ int main(int argc, char** argv){
     CloseDisplay();
   }
 
-  if(argc == 8)
+  if(argc == 8 && atoi(argv[7]) == 0)
     print_grid(grid);
   
   write_cell_to_file(grid, "result.gen");
