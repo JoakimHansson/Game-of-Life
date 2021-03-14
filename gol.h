@@ -11,7 +11,7 @@ typedef struct grid{
   int end_index;
   int live;
   int nr_threads;
-  char **cells;
+  char *cells;
 }grid_t;
 
 /** @brief Allocates memory for a NxN grid. All cells is set to 0.

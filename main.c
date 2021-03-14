@@ -23,7 +23,7 @@ int write_cell_to_file(grid_t *g, const char *fileName) {
 
   for(int i=g->start_index; i<g->end_index; i++){
     for(int j=0; j<g->size; j++){
-      fwrite(&g->cells[i][j], sizeof(char), 1, output_file);
+      fwrite(&g->cells[i * g->size + j], sizeof(char), 1, output_file);
     }
   }
   fclose(output_file);
@@ -32,7 +32,7 @@ int write_cell_to_file(grid_t *g, const char *fileName) {
 }
 
 int read_cells_from_file(grid_t *g, const char* fileName) {
-  int n = g->size;
+  int N = g->size;
   /* Open input file and determine its size. */
   FILE* input_file = fopen(fileName, "rb");
   if(!input_file) {
@@ -44,17 +44,17 @@ int read_cells_from_file(grid_t *g, const char* fileName) {
   size_t fileSize = ftell(input_file);
   /* Now use fseek() again to set file position back to beginning of the file. */
   fseek(input_file, 0L, SEEK_SET);
-  if(fileSize != n * n * sizeof(char)) {
+  if(fileSize != N * N * sizeof(char)) {
     printf("read_cells_from_file error: size of input file '%s' does not match the given n.\n", fileName);
     printf("For n = %d the file size is expected to be (n * sizeof(char)) = %lu but the actual file size is %lu.\n",
-	   n, n * n * sizeof(char), fileSize);
+	   N, N * N * sizeof(char), fileSize);
     return -1;
   }
 
   for(int i=g->start_index; i<g->end_index; i++){
     for(int j=g->start_index; j<g->end_index; j++){
     /* Read contents of input_file into buffer. */
-      fread(&(g->cells[i+1][j+1]), sizeof(char), 1, input_file);
+      fread(&(g->cells[(i+1) * N + j+1]), sizeof(char), 1, input_file);
     }
   }
   
@@ -121,7 +121,7 @@ int main(int argc, char** argv){
       ClearScreen();
       for (int y = 0; y < N; y++) {
         for (int x = 0; x < N; x++) {
-          if (grid->cells[y][x] == 1) {
+          if (grid->cells[y * N + x] == 1) {
             DrawRectangle(x * rectangleSide, y * rectangleSide, 1, 1,
                           rectangleSide, rectangleSide, LiveColor);
           }
@@ -140,7 +140,7 @@ int main(int argc, char** argv){
   //  if(argc == 8 && atoi(argv[7]) == 0)
   // print_grid(grid);
   
-  write_cell_to_file(grid, "result.gen");
+  //  write_cell_to_file(grid, "result.gen");
 
   delete_grid(grid);
 

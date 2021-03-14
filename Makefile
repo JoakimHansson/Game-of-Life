@@ -13,11 +13,12 @@ R = 10      # random birts in initial setup / seed
 TT = 0	    # time between generations/steps (in seconds)				
 TS = 100000 # number of grnerations/steps to simulate
 T = 1       # threads to use
+G = 1
 
 all: $(EXECUTABLE)
 
 run: $(EXECUTABLE)
-	./gol $(R) $(N) $(TT) $(TS) 1 $(T)
+	./gol $(R) $(N) $(TT) $(TS) $(G) $(T)
 
 time: $(EXECUTABLE)
 	time ./gol input/random_N_00500.gen 500 0 100 0 $(T);
