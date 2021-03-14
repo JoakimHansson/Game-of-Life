@@ -1,19 +1,23 @@
 CC = gcc
 LD = gcc
-CFLAGS=-Wall -O3
+CFLAGS=-Wall -Ofast
 INCLUDES=-I/opt/X11/include
 LDFLAGS=-L/opt/X11/lib -lX11 -lm -pthread -fopt-info-vec-all -ftree-vectorizer-verbose=2
 OBJS = main.o gol.o ./graphics/graphics.o
 EXECUTABLE = gol
-T = 1
 TICK = 100
 FILE = input/random_N_01000.gen 
-N = 1000
+
+N = 1000    # size of grid
+R = 10      # random birts in initial setup / seed
+TT = 0	    # time between generations/steps (in seconds)				
+TS = 100000 # number of grnerations/steps to simulate
+T = 1       # threads to use
 
 all: $(EXECUTABLE)
 
 run: $(EXECUTABLE)
-	./gol $(FILE) $(N) 0 10000 1 $(T) 1;
+	./gol $(R) $(N) $(TT) $(TS) 1 $(T)
 
 time: $(EXECUTABLE)
 	time ./gol input/random_N_00500.gen 500 0 100 0 $(T);

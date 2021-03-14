@@ -5,7 +5,7 @@
 const float LiveColor=0, DeadColor=1;
 
 // Default window size. scales if N > 1000.
-int windowSize = 1000;
+int windowSize = 1440;
 float rectangleSide;// = 0.01;
 
 
@@ -74,20 +74,28 @@ int main(int argc, char** argv){
 
   int N, graphics, tick_max, nr_threads;
   float tick_time;
-  if(argc < 6 || argc > 8){
-    printf("Usage: ./gol inputfile N birth tick_time tick_steps graphics nr_threads\n");
+  grid_t *grid;
+  
+  if(argc != 7){
+    printf("Usage: ./gol inputfile N tick_time tick_steps graphics nr_threads\nOR\n");
+    printf("Usage: ./gol random_biths N tick_time tick_steps graphics nr_threads\n");
     exit(0);
   }
-  
   N = atoi(argv[2]);
   tick_time = atof(argv[3]) * 1000000;
   tick_max = atoi(argv[4]);
   graphics = atoi(argv[5]);
-  if(argc == 7)
-    nr_threads = atoi(argv[6]);
-  else
-    nr_threads = 1;
+  nr_threads = atoi(argv[6]);
+  grid = create_grid(N, nr_threads);
+
   
+  if(atoi(argv[1]) == 0){
+    read_cells_from_file(grid, argv[1]);
+  }else{
+    srand(time(0));
+    init_grid(grid, atoi(argv[1]));
+  }
+   
   if(N % 2)
     exit(-1);
 
@@ -100,14 +108,6 @@ int main(int argc, char** argv){
     InitializeGraphics(argv[0], windowSize, windowSize);
     SetCAxes(0, 1);
   }
-  
-  grid_t *grid = create_grid(N, nr_threads);
-  if(argc == 8 && atoi(argv[7]) == 1){
-    srand(0);
-    init_grid(grid, rand() % 10 + 1);
-  }
-  else
-    read_cells_from_file(grid, argv[1]);
  
   int current_tick = 0;
 
@@ -137,8 +137,8 @@ int main(int argc, char** argv){
     CloseDisplay();
   }
 
-  if(argc == 8 && atoi(argv[7]) == 0)
-    print_grid(grid);
+  //  if(argc == 8 && atoi(argv[7]) == 0)
+  // print_grid(grid);
   
   write_cell_to_file(grid, "result.gen");
 
