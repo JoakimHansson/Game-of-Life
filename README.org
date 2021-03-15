@@ -20,10 +20,6 @@ make run N=500 TS=1000 T=8
 
 - *make clean* - cleaning up..
 
-- Note: set T=x after any make command to set the number of threads. 
-Example: make time T=8 - will run with 8 threads
-         make time T=2 - will run with 2 threads.
-
 * Notes
 - The current setting uses the -O3 compiler flag. It is recommended to change it to -Ofast if your gcc version support it.
 
