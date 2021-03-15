@@ -4,8 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-// Each cell is represented by a char. The cell is alive if the char is set to
-// 1, otherwise False.
 /** @struct grid
  *  @brief This struct represents the universe in Game of Life.
  *
