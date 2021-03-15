@@ -51,7 +51,7 @@ int main(int argc, char** argv){
 
   while (current_tick++ < tick_max) {
 
-    if(evolve_grid(grid) == 0){
+    if(evolve_grid() == 0){
       break;
     }
 

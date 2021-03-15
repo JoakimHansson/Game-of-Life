@@ -30,18 +30,18 @@ typedef struct grid{
 */
 grid_t* init_grid(int N, int nr_threads);
 
-/** @brief Free all memory used by g.
+/** @brief Free all memory used.
 *
 */
 void destroy_grid();
 
-/** @brief Set the cells in g to alive or dead, depending on if a random generated value is larger than r.
+/** @brief Set the cells to alive or dead, depending on if a random generated value is larger than r.
 *
 *  @param r A number between 1 and 100.
 */
 void random_grid(int r);
 
-/** @brief Updates all cells in g to a new generation.
+/** @brief Updates all cells to a new generation.
 *
 *  1. Any live cell with two or three live neighbours survives.
 *  2. Any dead cell with three live neighbours becomes a live cell.
@@ -51,7 +51,7 @@ void random_grid(int r);
 */
 int evolve_grid();
 
-/** @brief Print g to stdout.
+/** @brief Print grid to stdout.
 *
 */
 void print_grid();
