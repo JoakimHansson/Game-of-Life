@@ -1,6 +1,6 @@
 CC = gcc
 LD = gcc
-CFLAGS=-Wall -Ofast
+CFLAGS=-Wall -O3
 INCLUDES=-I/opt/X11/include
 LDFLAGS=-L/opt/X11/lib -lX11 -lm -pthread -fopt-info-vec-all -ftree-vectorizer-verbose=2
 OBJS = main.o gol.o ./graphics/graphics.o
@@ -13,7 +13,7 @@ R = 10      # random birts in initial setup / seed
 TT = 0	    # time between generations/steps (in seconds)				
 TS = 100000 # number of grnerations/steps to simulate
 T = 1       # threads to use
-G = 1
+G = 1       # graphics 1/0
 
 all: $(EXECUTABLE)
 
