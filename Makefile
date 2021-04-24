@@ -34,7 +34,7 @@ diff: $(EXECUTABLE)
 	diff ref_N_01000_100.txt test_N_01000_100.txt
 
 $(EXECUTABLE): $(OBJS)
-	$(LD) $(LDFLAGS) $(OBJS) -o $(EXECUTABLE)
+	$(LD) $(OBJS) $(LDFLAGS) -o $(EXECUTABLE)
 
 main.o: main.c gol.h ./graphics/graphics.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c main.c
