@@ -1,6 +1,7 @@
 #include "gol.h"
 #include <pthread.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
@@ -17,11 +18,10 @@ typedef struct data {
   int id;
 } data_t;
 
-
 int N;
+int threads;
 int global_count = 0;
 int generation_count = 0;
-
 char *looked_at;
 int *pos_of_changed;
 
@@ -37,6 +37,7 @@ grid_t *init_grid(int n, int nr_threads) {
   ng = (grid_t *)malloc(sizeof(grid_t));
   N = n;
   g->size = N;
+  threads = nr_threads;
   g->nr_threads = nr_threads;
   g->start_index = 1;
   g->end_index = N + 1;
@@ -45,10 +46,8 @@ grid_t *init_grid(int n, int nr_threads) {
   ng->size = N;
   g->cells = (char *)calloc(sizeof(char *), (N + 2) * (N + 2));
   ng->cells = (char *)calloc(sizeof(char *), (N + 2) * (N + 2));
-
   looked_at = (char *)calloc(sizeof(char), (N + 2) * (N + 2));
   pos_of_changed = calloc(sizeof(int), N * N * 4);
-
   d = calloc(sizeof(data_t), nr_threads);
   for (int i = 0; i < nr_threads; i++) {
     d[i].pos_of_changed = calloc(sizeof(int), N * N * 4);
@@ -63,8 +62,9 @@ void destroy_grid() {
   free(ng->cells);
   free(g);
   free(ng);
-
-  free(d->pos_of_changed);
+  for (int i = 0; i < threads; i++) {
+    free(d[i].pos_of_changed);
+  }
   free(d);
 
   free(pos_of_changed);

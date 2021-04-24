@@ -24,9 +24,10 @@ int main(int argc, char** argv){
   tick_max = atoi(argv[4]);
   graphics = atoi(argv[5]);
   nr_threads = atoi(argv[6]);
+  if(nr_threads == 0) nr_threads = 1;
   grid = init_grid(N, nr_threads);
 
-  
+
   if(atoi(argv[1]) == 0){
     read_grid_from_file(argv[1]);
   }else{

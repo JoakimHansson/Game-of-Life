@@ -11,7 +11,7 @@ FILE = input/random_N_01000.gen
 N = 1000    # size of grid
 R = 10      # random birts in initial setup / seed
 TT = 0	    # time between generations/steps (in seconds)				
-TS = 100000 # number of grnerations/steps to simulate
+TS = 1000   # number of grnerations/steps to simulate
 T = 1       # threads to use
 G = 1       # graphics 1/0
 
@@ -56,3 +56,6 @@ run_profile: compile_prof
 
 compile_prof:
 	gcc -pg graphics/graphics.c gol.c main.c $(INCLUDES) $(LDFLAGS)
+
+memcheck: all
+	valgrind --leak-check=full --show-leak-kinds=all -s ./gol $(R) $(N) $(TT) 100 $(G) $(T)

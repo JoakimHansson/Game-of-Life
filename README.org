@@ -14,7 +14,9 @@ The following command will use 8 threads to run a simulation with a 500x500 grid
 make run N=500 TS=1000 T=8 
 #+end_src
 
-- *make profile* - runs profiling for an instance with N = 2000 in 100 time-steps.
+- *make profile* - runs profiling for an instance with N = 1000 in 100 time-steps.
+
+- *make memcheck* - runs valgrind for an instance with N = 1000 in 100 time-steps. (set T=n to run with n threads)
 
 - *make time* - runs time tests for instances where N = 500, 1000, 1500, 2000, 5000, 10000 and 20000. 100 time-steps each.
 
